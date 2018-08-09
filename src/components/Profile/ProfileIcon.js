@@ -4,7 +4,7 @@ import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap
 
 class ProfileIcon extends Component {
     state = {
-        dropdownOpen: false
+        dropdownOpen: false,
     }
 
     toggle = () => {
@@ -31,7 +31,6 @@ class ProfileIcon extends Component {
                         <DropdownItem onClick={() => this.props.onRouteChange('signout')}>Sign Out</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
-
             </div>
         )
     }
