@@ -18,10 +18,16 @@ class Signin extends React.Component {
         this.setState({ signInPassword: event.target.value })
     }
 
+    saveAuthTokenInSession = (token) => {
+        window.localStorage.setItem('token', token);
+    }
+
     onSubmitSignIn = () => {
         fetch('http://localhost:3000/signin', {
             method: 'post',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
                 email: this.state.signInEmail,
                 password: this.state.signInPassword
@@ -29,9 +35,22 @@ class Signin extends React.Component {
         })
             .then(response => response.json())
             .then(data => {
-                if (data.userId) {
-                    this.props.loadUser(data)
-                    this.props.onRouteChange('home');
+                if (data.userId && data.success === 'true') {
+                    this.saveAuthTokenInSession(data.token);
+                    fetch(`http://localhost:3000/profile/${data.userId}`, {
+                        method: 'get',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': data.token
+                        }
+                    })
+                        .then(res => res.json())
+                        .then(profile => {
+                            console.log(profile);
+                            this.props.loadUser(profile);
+                            this.props.onRouteChange('home');
+                        })
+                        .catch(console.log)
                 }
             })
     }

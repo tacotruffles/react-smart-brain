@@ -47,6 +47,40 @@ class App extends Component {
         this.state = initialState;
     }
 
+    componentDidMount() {
+        const token = window.localStorage.getItem('token');
+
+        if (token) {
+            fetch('http://localhost:3000/signin', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'applicatioin/json',
+                    'Authorization': token //Left of the "Bearer " keyword
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.id) {
+                        fetch(`http://localhost:3000/profile/${data.id}`, {
+                            method: 'get',
+                            headers: {
+                                'Content-Type': 'applicatioin/json',
+                                'Authorization': token //Left of the "Bearer " keyword
+                            }
+                        })
+                            .then(res => res.json())
+                            .then(user => {
+                                if (user && user.email) {
+                                    this.loadUser(user);
+                                    this.onRouteChange('home');
+                                }
+                            })
+                    }
+                })
+                .catch(console.log);
+        }
+    }
+
     loadUser = (data) => {
         this.setState({
             user: {
@@ -115,6 +149,8 @@ class App extends Component {
 
     onRouteChange = (route) => {
         if (route === 'signout') {
+            // TODO: add endpoint call to /logout to remove tokens from redis or do we care as they expire 2 days?
+            window.localStorage.removeItem('token');
             return this.setState(initialState)
         } else if (route === 'home') {
             this.setState({ isSignedIn: true })
